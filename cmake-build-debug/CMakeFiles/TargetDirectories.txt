@@ -1,0 +1,3 @@
+/Users/andreachiurla/CLionProjects/SelezionaDestinatari/cmake-build-debug/CMakeFiles/SelezionaDestinatari.dir
+/Users/andreachiurla/CLionProjects/SelezionaDestinatari/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/andreachiurla/CLionProjects/SelezionaDestinatari/cmake-build-debug/CMakeFiles/rebuild_cache.dir
