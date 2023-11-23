@@ -3,4 +3,4 @@ project(SelezionaDestinatari C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(SelezionaDestinatari main.c funzioni.c funzioni.h)
+add_executable(main.c funzioni.c funzioni.h)
