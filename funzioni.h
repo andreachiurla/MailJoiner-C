@@ -24,6 +24,7 @@
 #define BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
 
 
-void toString(char mailsString[]);
+void toString();
 void addMail();
 bool isFree(int num);
+int getPersonID();

@@ -11,49 +11,55 @@
  */
 void addMail(){
     char email[100] = "";
-    char strPersonID[10];
-    char personID;
-    printf(MAGENTA"\nPer non inserire più mail, inserisci \'exit\'\n"RESET);
-    bool validNumber = false;
+    int personID;
+    char temp;
 
-    char trash[10];
+    printf(MAGENTA"\nPer non inserire più mail, inserisci \'exit\'\n"RESET);
 
     while(strcmp(email, "exit")) {
         // richiesta mail
         printf(BLUE"Inserisci mail [exit per uscire]:\n"RESET);
         strcpy(email, "");
+        scanf("%c", &temp);    // '\n' problem
         fgets(email, 100, stdin);
+        email[strcspn(email, "\n")] = 0;
 
         // se non ha inserito 'exit' chiede anche il numero corrispondente alla persona e li stampa su file
         if(strcmp(email, "exit")) {
-            while(1) {   // chiede finché inserisce un numero già inserito
-                printf(BLUE"Inserisci il numero della persona: "RESET);
-                scanf("%s", trash);     // bug - trash
-                fgets(&strPersonID, 3, stdin);
-                personID = atoi(strPersonID);
-                printf("-- ---  --HO LETTO: %c\n", personID);
-
-                if(isFree(personID) == false){
-                    printf(RED"Esiste una persona con lo stesso numero.\n"RESET);
-                }else{
-                    break;
-                }
-            }
+            personID = getPersonID();
+            temp = personID + '0';
 
             FILE *fp = fopen(FILENAME, "a");
-            fprintf(fp, &personID);
+            fprintf(fp, &temp);
             fprintf(fp, " ");
             fprintf(fp, email);
+            fprintf(fp, "\n");
             fclose(fp);
         }
     }
+}
+
+int getPersonID() {
+    int personID;
+
+    while(1) {   // chiede finché inserisce un numero già inserito
+        printf(BLUE"Inserisci il numero della persona: "RESET);
+        scanf( " %d", &personID) ;
+
+        if(isFree(personID) == false){
+            printf(RED"Esiste una persona con lo stesso numero.\n"RESET);
+        }else{
+            break;
+        }
+    }
+    return personID;
 }
 
 /**
  *
  * @param mailsString
  */
-void toString(char mailsString[]){
+void toString(){
     FILE *fp = fopen(FILENAME, "r");
     char email[100];
     char toString[1000] = "";
@@ -61,7 +67,7 @@ void toString(char mailsString[]){
     int nSearch;
     bool isFound = false;
 
-    printf(BOLDGREEN "Per favore, inserisci i numeri dei presenti. [per smettere inserisci '0']" RESET);
+    printf(BOLDGREEN "Inserisci il numero di ogni presente. [per smettere inserisci '0']" RESET);
     for (int i = 1; personID != 0; ++i) {
         printf(CYAN "\nPresente %d" RESET": ", i);
         scanf("%d", &personID);
@@ -70,24 +76,25 @@ void toString(char mailsString[]){
         fseek(fp, 0, SEEK_SET);
         while(!feof(fp)){
             fscanf(fp, "%d", &nSearch);
-            fseek(fp, +1, SEEK_CUR);
             if(nSearch == personID){
                 isFound = true;
                 break;
             }
+            fseek(fp, +1, SEEK_CUR);
+            if (nSearch == EOF) break;
         }
         if(!isFound){
             printf(RED "Nessuna corrispondenza" RESET);
         }else {
-            fscanf(fp, "%s", email);     // salvo la mail corrispondente al numero richiesto dall'utente
             printf("\n -- MAIL TROVATA: %s\n", email);
+            fscanf(fp, "%s", email);     // salvo la mail corrispondente al numero richiesto dall'utente
             strcat(toString, email);    // concateno la mail estratta dal file nella stringa di tutte le mail
             strcat(toString, ", ");
         }
     }
 
-
-    printf("email concatenate: %s\n", toString);
+    fclose(fp);
+    printf("email concatenate:\n%s\n", toString);
 }
 
 /**
@@ -101,17 +108,21 @@ bool isFree(int num){
     num = abs(num);
     char charNum = num + '0';
 
-    FILE *fp = fopen(FILENAME, "r");
-    fseek(fp, 0, SEEK_SET);
-    while(!feof(fp)){
-        fscanf(fp, "%c", &nSearch);
-        fseek(fp, +1, SEEK_CUR);
-        if(nSearch == charNum){
-            return false;
+    FILE *fp = fopen(FILENAME, "r+");
+    if(fp == NULL){
+        printf(RED "\nErrore nell'apertura del file\n" RESET);
+    }else {
+        fseek(fp, 0, SEEK_SET);
+        while (!feof(fp)) {
+            fscanf(fp, "%c", &nSearch);
+            fseek(fp, +1, SEEK_CUR);
+            if (nSearch == charNum) {
+                return false;
+            }
+            char c = fgetc(fp);
+            if (c == EOF) break;    // se finito il file esce
         }
-        char c=fgetc(fp);
-        if (c==EOF) break;
+        fclose(fp);
     }
-    fclose(fp);
     return true;
 }
